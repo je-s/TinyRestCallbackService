@@ -11,7 +11,7 @@ import requests
 
 # Constants
 STATEMENT = {
-    "CREATE_ENDPOINT_CONFIG" : "CREATE TABLE ENDPOINT_CONFIG( ENDPOINT TEXT, METHOD TEXT, LOG BOOLEAN, MESSAGE TEXT, TARGET TEXT, TARGET_METHOD TEXT, PASS_PARAMS BOOLEAN, PRIMARY KEY ( ENDPOINT, METHOD ) )",
+    "CREATE_ENDPOINT_CONFIG" : "CREATE TABLE ENDPOINT_CONFIG( ENDPOINT TEXT, METHOD TEXT, LOG BOOLEAN, MESSAGE TEXT, REDIRECT_URL TEXT, WEBHOOK TEXT, WEBHOOK_METHOD TEXT, WEBHOOK_PARAMS TEXT, PRIMARY KEY ( ENDPOINT, METHOD ) )",
     "CREATE_LOG" : "CREATE TABLE LOG( ENDPOINT TEXT, METHOD TEXT, TIME DATETIME, HOST TEXT, REMOTE_IP TEXT, USER_AGENT TEXT )",
     "GET_ALL_ENDPOINTS" : "SELECT * FROM ENDPOINT_CONFIG",
     "GET_ENDPOINT" : "SELECT * FROM ENDPOINT_CONFIG WHERE ENDPOINT = ? AND METHOD = ?",
@@ -99,6 +99,7 @@ def endpoint( endpoint ):
     userAgent = request.user_agent
 
     result = getEndpointConfig( endpoint, method )
+    print(result)
 
     if result is None:
         return CONFIG["DEFAULT_MESSAGE"]
@@ -106,15 +107,16 @@ def endpoint( endpoint ):
     endpointConfig = {
         "log" : result[2],
         "message" : result[3],
-        "target" : result[4],
-        "targetMethod" : result[5],
-        "passParams" : result[6]
+        "redirectUrl": result[4],
+        "webhook" : result[5],
+        "webhookMethod" : result[6],
+        "webhookParams" : result[7]
     }
 
     if endpointConfig["log"]:
         logCall( endpoint, method, int( time.time() ), host, remoteIp, str( userAgent ) )
 
-    if endpointConfig["target"]:
+    if endpointConfig["webhook"]:
         params = ""
 
         if endpointConfig["passParams"]:
@@ -129,7 +131,7 @@ def endpoint( endpoint ):
                 }
             )
 
-        callWebHook( endpointConfig["target"], endpointConfig["targetMethod"], params )
+        callWebHook( endpointConfig["webhook"], endpointConfig["webhookMethod"], params )
 
     return endpointConfig["message"]
 
