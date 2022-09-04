@@ -2,7 +2,7 @@ import sys
 import os
 import toml
 import signal
-from flask import Flask, request, redirect
+from flask import Flask, request, render_template
 from markupsafe import escape
 import sqlite3
 import time
@@ -11,12 +11,14 @@ import requests
 import string
 
 # Constants
+MAIN_HTML_FILE = "main.html"
+
 STATEMENT = {
-    "CREATE_ENDPOINT_CONFIG" : "CREATE TABLE ENDPOINT_CONFIG( ENDPOINT TEXT, METHOD TEXT, LOG BOOLEAN, MESSAGE TEXT, REDIRECT_URL TEXT, WEBHOOK TEXT, WEBHOOK_METHOD TEXT, WEBHOOK_BODY TEXT, PRIMARY KEY ( ENDPOINT, METHOD ) )",
+    "CREATE_ENDPOINT_CONFIG" : "CREATE TABLE ENDPOINT_CONFIG( ENDPOINT TEXT, METHOD TEXT, LOG BOOLEAN, MESSAGE TEXT, REDIRECT_URL TEXT, REDIRECT_WAIT INTEGER, WEBHOOK TEXT, WEBHOOK_METHOD TEXT, WEBHOOK_BODY TEXT, PRIMARY KEY ( ENDPOINT, METHOD ) )",
     "CREATE_LOG" : "CREATE TABLE LOG( ENDPOINT TEXT, METHOD TEXT, TIMESTAMP DATETIME, HOST TEXT, REMOTE_IP TEXT, USER_AGENT TEXT )",
     "GET_ALL_ENDPOINTS" : "SELECT * FROM ENDPOINT_CONFIG",
     "GET_ENDPOINT" : "SELECT * FROM ENDPOINT_CONFIG WHERE ENDPOINT = ? AND METHOD = ?",
-    "INSERT_LOG_ENTRY" : "INSERT INTO LOG ( ENDPOINT, METHOD, TIME, HOST, REMOTE_IP, USER_AGENT ) VALUES ( :endpoint, :method, :timestamp, :host, :remoteIp, :userAgent )"
+    "INSERT_LOG_ENTRY" : "INSERT INTO LOG ( ENDPOINT, METHOD, TIMESTAMP, HOST, REMOTE_IP, USER_AGENT ) VALUES ( :endpoint, :method, :timestamp, :host, :remoteIp, :userAgent )"
 }
 
 PLACEHOLDER = {
@@ -88,9 +90,10 @@ def getEndpointConfig( endpoint, method ):
             "log" : result[2],
             "message" : result[3],
             "redirectUrl": result[4],
-            "webhook" : result[5],
-            "webhookMethod" : result[6],
-            "webhookBody" : result[7]
+            "redirectWait": result[5],
+            "webhook" : result[6],
+            "webhookMethod" : result[7],
+            "webhookBody" : result[8]
         }
 
     return endpointConfig
@@ -154,10 +157,7 @@ def endpoint( endpoint ):
 
         response = callWebHook( endpointConfig["webhook"], endpointConfig["webhookMethod"], body )
 
-    if endpointConfig["redirectUrl"]:
-        return redirect( endpointConfig["redirectUrl"] )
-
-    return endpointConfig["message"]
+    return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
 
 if __name__=='__main__':
     #initInterruptSignal()

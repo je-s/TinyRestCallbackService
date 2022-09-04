@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <script defer>
+      let redirectUrl = '{{ redirectUrl }}'
+      let redirectWait = parseInt( '{{ redirectWait }}' )
+  
+      if ( redirectUrl ) {
+        setTimeout( function() {
+          window.location.href = redirectUrl;
+        } , redirectWait );
+      }
+    </script>
+  </head>
+  <body>
+    {{ message | safe }}
+  </body>
+</html>
