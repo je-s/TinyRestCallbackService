@@ -98,7 +98,7 @@ def getEndpointConfig( endpoint, method ):
 
     return endpointConfig
 
-def logCall( requestInfo ):
+def logRequest( requestInfo ):
     databaseConnection = sqlite3.connect( CONFIG["DATABASE"] )
 
     cursor = databaseConnection.cursor()
@@ -120,14 +120,14 @@ def logCall( requestInfo ):
 def callWebHook( target, method, body ):
     return requests.request( method, target, data = body )
 
-def complementWebhookBody( body, requestInfo ):
+def complementWebhookBody( webhookBody, requestInfo ):
     requestInfo["timestamp"] = str( requestInfo["timestamp"] )
 
     # Names of dict-entries in PLACEHOLDER and requestInfo must be in sync, or otherwise the items can not be matched.
     for entry in PLACEHOLDER:
-        body = body.replace( PLACEHOLDER[entry], requestInfo[entry] )
+        webhookBody = webhookBody.replace( PLACEHOLDER[entry], requestInfo[entry] )
 
-    return body
+    return webhookBody
 
 @service.route( CONFIG["PATH_PREFIX"] + "/<path:endpoint>", methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'CUSTOM', 'TEST'] )
 def endpoint( endpoint ):
@@ -147,15 +147,15 @@ def endpoint( endpoint ):
         return CONFIG["DEFAULT_MESSAGE"]
 
     if endpointConfig["log"]:
-        logCall( requestInfo )
+        logRequest( requestInfo )
 
     if endpointConfig["webhook"]:
-        body = ""
+        webhookBody = ""
 
         if endpointConfig["webhookBody"]:
-            body = complementWebhookBody( endpointConfig["webhookBody"], requestInfo )
+            webhookBody = complementWebhookBody( endpointConfig["webhookBody"], requestInfo )
 
-        response = callWebHook( endpointConfig["webhook"], endpointConfig["webhookMethod"], body )
+        response = callWebHook( endpointConfig["webhook"], endpointConfig["webhookMethod"], webhookBody )
 
     return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
 
