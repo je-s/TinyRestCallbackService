@@ -1,3 +1,5 @@
+from sql_statements import STATEMENT
+from placeholders import PLACEHOLDER
 import sys
 import os
 import toml
@@ -13,39 +15,21 @@ import string
 # Constants
 MAIN_HTML_FILE = "main.html"
 
-STATEMENT = {
-    "CREATE_ENDPOINT_CONFIG" : "CREATE TABLE ENDPOINT_CONFIG( ENDPOINT TEXT, METHOD TEXT, LOG BOOLEAN, MESSAGE TEXT, REDIRECT_URL TEXT, REDIRECT_WAIT INTEGER, WEBHOOK TEXT, WEBHOOK_METHOD TEXT, WEBHOOK_BODY TEXT, PRIMARY KEY ( ENDPOINT, METHOD ) )",
-    "CREATE_LOG" : "CREATE TABLE LOG( ENDPOINT TEXT, METHOD TEXT, TIMESTAMP DATETIME, HOST TEXT, REMOTE_IP TEXT, USER_AGENT TEXT )",
-    "GET_ALL_ENDPOINTS" : "SELECT * FROM ENDPOINT_CONFIG",
-    "GET_ENDPOINT" : "SELECT * FROM ENDPOINT_CONFIG WHERE ENDPOINT = ? AND METHOD = ?",
-    "INSERT_LOG_ENTRY" : "INSERT INTO LOG ( ENDPOINT, METHOD, TIMESTAMP, HOST, REMOTE_IP, USER_AGENT ) VALUES ( :endpoint, :method, :timestamp, :host, :remoteIp, :userAgent )"
-}
-
-PLACEHOLDER = {
-    "endpoint" : "<<endpoint>>",
-    "method" : "<<method>>",
-    "host" : "<<host>>",
-    "requestUrl" : "<<requestUrl>>",
-    "remoteIp" : "<<remoteIp>>",
-    "userAgent" : "<<userAgent>>",
-    "timestamp" : "<<timestamp>>"
-}
-
 # Variables
 CONFIG = {}
+service = Flask( __name__ )
 
 # Load config
 def loadConfig( configPath ):
     try:
         global CONFIG
         CONFIG = toml.load( configPath, _dict = dict )
+
         print( "Config successfuly loaded from '" + os.path.abspath( configPath ) + "'." )
     except FileNotFoundError:
         sys.exit( "Could not find config file '" + os.path.abspath( configPath ) + "'. Exiting." )
 
 loadConfig( str( sys.argv[1] ) )
-
-service = Flask( __name__ )
 
 # Define our signal handler for gracefully ending the script
 def signalHandler( signal, frame ):
@@ -56,6 +40,7 @@ def signalHandler( signal, frame ):
 # Init SIGINT-Signal to gracefully quit the Script
 def initInterruptSignal():
     signal.signal( signal.SIGINT, signalHandler )
+
     print( "Press Ctrl+C to exit." )
 
 def initDatabase():
@@ -67,6 +52,7 @@ def initDatabase():
         cursor.execute( STATEMENT["GET_ALL_ENDPOINTS"] )
     except sqlite3.OperationalError:
         print( "Database with name \"" + CONFIG["DATABASE"] + "\" not initialised. Creating tables." )
+
         cursor.execute( STATEMENT["CREATE_ENDPOINT_CONFIG"] )
         cursor.execute( STATEMENT["CREATE_LOG"] )
 
@@ -132,15 +118,16 @@ def complementWebhookBody( webhookBody, requestInfo ):
 @service.route( CONFIG["PATH_PREFIX"] + "/<path:endpoint>", methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'CUSTOM', 'TEST'] )
 def endpoint( endpoint ):
     requestInfo = {
-        "endpoint" : escape( endpoint ),
-        "method" : request.method,
-        "host" : request.host,
-        "requestUrl" : request.url,
-        "remoteIp" : request.remote_addr,
+        "endpoint" : str( escape( endpoint ) ),
+        "method" : str( request.method ),
+        "host" : str( request.host ),
+        "requestUrl" : str( request.url ),
+        "remoteIp" : str( request.remote_addr ),
         "userAgent" : str( request.user_agent ),
         "timestamp" : int( time.time() )
     }
 
+    print( "-> Endpoint \"" + requestInfo["endpoint"] + "\" called with method \"" + requestInfo["method"] + "\" from " + requestInfo["remoteIp"] )
     endpointConfig = getEndpointConfig( requestInfo["endpoint"], requestInfo["method"] )
 
     if endpointConfig is None:
@@ -150,12 +137,15 @@ def endpoint( endpoint ):
         logRequest( requestInfo )
 
     if endpointConfig["webhook"]:
+        print( "--> Calling webhook \"" + endpointConfig["webhook"] + "\"" )
         webhookBody = ""
 
         if endpointConfig["webhookBody"]:
             webhookBody = complementWebhookBody( endpointConfig["webhookBody"], requestInfo )
 
         response = callWebHook( endpointConfig["webhook"], endpointConfig["webhookMethod"], webhookBody )
+
+        print( "--> Response code: " + str( response.status_code ) )
 
     return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
 
