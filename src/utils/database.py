@@ -5,9 +5,7 @@ import sqlite3
 class Database:
     def __init__ ( self, database ):
         self.database = database
-        self.initDatabase()
 
-    def initDatabase( self ):
         databaseConnection = sqlite3.connect( self.database )
 
         cursor = databaseConnection.cursor()
