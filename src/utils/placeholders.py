@@ -1,4 +1,5 @@
-PLACEHOLDER = {
+PLACEHOLDER = \
+{
     "endpoint" : "<<endpoint>>",
     "method" : "<<method>>",
     "host" : "<<host>>",

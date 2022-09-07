@@ -1,2 +1,2 @@
 #!/bin/sh
-python3 . config.toml 
+python3 . $1 $2

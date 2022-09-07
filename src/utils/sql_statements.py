@@ -1,4 +1,5 @@
-STATEMENT = {
+STATEMENT = \
+{
     "CREATE_ENDPOINT_CONFIG" :
         "CREATE TABLE \
             ENDPOINT_CONFIG( \
@@ -8,7 +9,7 @@ STATEMENT = {
                 MESSAGE TEXT, \
                 REDIRECT_URL TEXT, \
                 REDIRECT_WAIT INTEGER, \
-                WEBHOOK TEXT, \
+                WEBHOOK_URL TEXT, \
                 WEBHOOK_METHOD TEXT, \
                 WEBHOOK_BODY TEXT, \
                 PRIMARY KEY ( ENDPOINT, METHOD ) \
@@ -36,7 +37,7 @@ STATEMENT = {
                 MESSAGE, \
                 REDIRECT_URL, \
                 REDIRECT_WAIT, \
-                WEBHOOK, \
+                WEBHOOK_URL, \
                 WEBHOOK_METHOD, \
                 WEBHOOK_BODY \
             ) \
@@ -47,9 +48,9 @@ STATEMENT = {
                 :message, \
                 :redirectUrl, \
                 :redirectWait, \
-                :webhook, \
+                :webhookUrl, \
                 :webhookMethod, \
-                :webhookBody, \
+                :webhookBody \
             )",
     "INSERT_LOG_ENTRY" :
         "INSERT INTO \

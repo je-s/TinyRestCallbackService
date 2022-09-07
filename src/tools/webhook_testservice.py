@@ -7,5 +7,4 @@ def endpoint():
     print( request.data )
     return request.data
 
-if __name__=='__main__':
-    service.run( "0.0.0.0", 5001 )
+service.run( "0.0.0.0", 5001 )

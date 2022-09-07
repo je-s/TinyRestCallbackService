@@ -37,7 +37,7 @@ class Database:
                 "message" : endpointConfig["message"],
                 "redirectUrl" : endpointConfig["redirectUrl"],
                 "redirectWait" : endpointConfig["redirectWait"],
-                "webhook" : endpointConfig["webhook"],
+                "webhookUrl" : endpointConfig["webhookUrl"],
                 "webhookMethod" : endpointConfig["webhookMethod"],
                 "webhookBody" : endpointConfig["webhookBody"]
             }
@@ -58,12 +58,13 @@ class Database:
         endpointConfig = None
 
         if result is not None:
-            endpointConfig = {
+            endpointConfig = \
+            {
                 "log" : result[2],
                 "message" : result[3],
                 "redirectUrl": result[4],
                 "redirectWait": result[5],
-                "webhook" : result[6],
+                "webhookUrl" : result[6],
                 "webhookMethod" : result[7],
                 "webhookBody" : result[8]
             }
