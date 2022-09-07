@@ -1,5 +1,4 @@
-from sql_statements import STATEMENT
-from placeholders import PLACEHOLDER
+from .utils import Database, PLACEHOLDER
 import sys
 import os
 import toml
@@ -18,6 +17,7 @@ MAIN_HTML_FILE = "main.html"
 # Variables
 CONFIG = {}
 service = Flask( __name__ )
+database = None
 
 # Load config
 def loadConfig( configPath ):
@@ -28,6 +28,9 @@ def loadConfig( configPath ):
         print( "Config successfuly loaded from '" + os.path.abspath( configPath ) + "'." )
     except FileNotFoundError:
         sys.exit( "Could not find config file '" + os.path.abspath( configPath ) + "'. Exiting." )
+
+if sys.argv.__len__() < 2:
+    sys.exit( "Config path as parameter is missing. Exiting." )
 
 loadConfig( str( sys.argv[1] ) )
 
@@ -42,66 +45,6 @@ def initInterruptSignal():
     signal.signal( signal.SIGINT, signalHandler )
 
     print( "Press Ctrl+C to exit." )
-
-def initDatabase():
-    databaseConnection = sqlite3.connect( CONFIG["DATABASE"] )
-
-    cursor = databaseConnection.cursor()
-
-    try:
-        cursor.execute( STATEMENT["GET_ALL_ENDPOINTS"] )
-    except sqlite3.OperationalError:
-        print( "Database with name \"" + CONFIG["DATABASE"] + "\" not initialised. Creating tables." )
-
-        cursor.execute( STATEMENT["CREATE_ENDPOINT_CONFIG"] )
-        cursor.execute( STATEMENT["CREATE_LOG"] )
-
-        databaseConnection.commit()
-
-    databaseConnection.close()
-
-def getEndpointConfig( endpoint, method ):
-    databaseConnection = sqlite3.connect( CONFIG["DATABASE"] )
-
-    cursor = databaseConnection.cursor()
-    cursor.execute( STATEMENT["GET_ENDPOINT"], ( endpoint, method, ) )
-    result = cursor.fetchone()
-
-    databaseConnection.close()
-
-    endpointConfig = None
-
-    if result is not None:
-        endpointConfig = {
-            "log" : result[2],
-            "message" : result[3],
-            "redirectUrl": result[4],
-            "redirectWait": result[5],
-            "webhook" : result[6],
-            "webhookMethod" : result[7],
-            "webhookBody" : result[8]
-        }
-
-    return endpointConfig
-
-def logRequest( requestInfo ):
-    databaseConnection = sqlite3.connect( CONFIG["DATABASE"] )
-
-    cursor = databaseConnection.cursor()
-    cursor.execute(
-        STATEMENT["INSERT_LOG_ENTRY"],
-        {
-            "endpoint" : requestInfo["endpoint"],
-            "method" : requestInfo["method"],
-            "timestamp" : requestInfo["timestamp"],
-            "host" : requestInfo["host"],
-            "remoteIp" : requestInfo["remoteIp"],
-            "userAgent" : requestInfo["userAgent"]
-        }
-    )
-
-    databaseConnection.commit()
-    databaseConnection.close()
 
 def callWebHook( target, method, body ):
     return requests.request( method, target, data = body )
@@ -128,13 +71,13 @@ def endpoint( endpoint ):
     }
 
     print( "-> Endpoint \"" + requestInfo["endpoint"] + "\" called with method \"" + requestInfo["method"] + "\" from " + requestInfo["remoteIp"] )
-    endpointConfig = getEndpointConfig( requestInfo["endpoint"], requestInfo["method"] )
+    endpointConfig = database.getEndpointConfig( requestInfo["endpoint"], requestInfo["method"] )
 
     if endpointConfig is None:
         return CONFIG["DEFAULT_MESSAGE"]
 
     if endpointConfig["log"]:
-        logRequest( requestInfo )
+        database.logRequest( requestInfo )
 
     if endpointConfig["webhook"]:
         print( "--> Calling webhook \"" + endpointConfig["webhook"] + "\"" )
@@ -149,7 +92,7 @@ def endpoint( endpoint ):
 
     return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
 
-if __name__=='__main__':
-    #initInterruptSignal()
-    initDatabase()
-    service.run( CONFIG["HOST"], CONFIG["PORT"] )
+print( "Starting service." )
+#initInterruptSignal()
+database = Database( CONFIG["DATABASE"])
+service.run( CONFIG["HOST"], CONFIG["PORT"] )
