@@ -1,4 +1,4 @@
-from ..utils import STATEMENT
+from . import STATEMENT
 import sys
 import sqlite3
 

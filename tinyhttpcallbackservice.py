@@ -1,4 +1,4 @@
-from .utils import loadConfig, Database, PLACEHOLDER
+from utils import loadConfig, Database, PLACEHOLDER
 import sys
 import os
 import signal
@@ -18,10 +18,10 @@ service = Flask( __name__ )
 database = None
 
 # Load config
-if sys.argv.__len__() < 3:
+if sys.argv.__len__() < 2:
     sys.exit( "Config path as parameter is missing. Exiting." )
 
-CONFIG = loadConfig( str( sys.argv[2] ) )
+CONFIG = loadConfig( str( sys.argv[1] ) )
 
 # Define our signal handler for gracefully ending the script
 def signalHandler( signal, frame ):
