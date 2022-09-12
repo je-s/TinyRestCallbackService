@@ -3,8 +3,10 @@ import sys
 import sqlite3
 
 class Database:
-    def __init__ ( self, database ):
+    def __init__ ( self, database, schema ):
         self.database = database
+
+        self.schema = schema or './schema.sql'
 
         databaseConnection = sqlite3.connect( self.database )
 
@@ -13,10 +15,13 @@ class Database:
         try:
             cursor.execute( STATEMENT["GET_ALL_ENDPOINTS"] )
         except sqlite3.OperationalError:
-            print( "Database with name \"" + self.database + "\" not initialised. Creating tables." )
+            print( "Database with name \"" + self.database + "\" not initialised. Creating database." )
 
-            cursor.execute( STATEMENT["CREATE_ENDPOINT_CONFIG"] )
-            cursor.execute( STATEMENT["CREATE_LOG"] )
+            try:
+                with open( schema, "r" ) as file:
+                    cursor.executescript( file.read() )
+            except FileNotFoundError:
+                sys.exit( "Couldn't create Database, schema file \"" + schema + "\" not found. Exiting." )
 
             databaseConnection.commit()
 

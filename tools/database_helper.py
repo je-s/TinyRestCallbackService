@@ -32,5 +32,9 @@ endpointConfig["webhookUrl"] = str( input( "\tWebhook URL: " ) )
 endpointConfig["webhookMethod"] = str( input( "\tWebhook Method (GET, POST, PUT, DELETE, PATCH, CUSTOM, TEST): " ) )
 endpointConfig["webhookBody"] = str( input( "\tWebhook Body: " ) )
 
-database = Database( sys.argv[1] )
+if sys.argv.__len__() < 3:
+    database = Database( sys.argv[1] )
+else:
+    database = Database( sys.argv[1], sys.argv[2] )
+
 database.createEndpointConfig( endpointConfig )

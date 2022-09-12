@@ -35,8 +35,14 @@ def initInterruptSignal():
 
     print( "Press Ctrl+C to exit." )
 
-def callWebHook( target, method, body ):
-    return requests.request( method, target, data = body )
+def callWebhook( target, method, body ):
+    try:
+        response = requests.request( method, target, data = body )
+
+        print( "--> Response code: " + str( response.status_code ) )
+    except Exception as e:
+        print( "--> Error while calling webhook: " + str( e ) )
+        
 
 def complementWebhookBody( webhookBody, requestInfo ):
     requestInfo["timestamp"] = str( requestInfo["timestamp"] )
@@ -76,13 +82,11 @@ def endpoint( endpoint ):
         if endpointConfig["webhookBody"]:
             webhookBody = complementWebhookBody( endpointConfig["webhookBody"], requestInfo )
 
-        response = callWebHook( endpointConfig["webhookUrl"], endpointConfig["webhookMethod"], webhookBody )
-
-        print( "--> Response code: " + str( response.status_code ) )
+        callWebhook( endpointConfig["webhookUrl"], endpointConfig["webhookMethod"], webhookBody )
 
     return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
 
 print( "Starting service." )
 #initInterruptSignal()
-database = Database( CONFIG["DATABASE"])
+database = Database( CONFIG["DATABASE"], CONFIG["SCHEMA"] )
 service.run( CONFIG["HOST"], CONFIG["PORT"] )
