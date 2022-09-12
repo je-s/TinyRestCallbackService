@@ -18,7 +18,7 @@ service = Flask( __name__ )
 database = None
 
 # Load config
-if sys.argv.__len__() < 2:
+if len( sys.argv ) < 2:
     sys.exit( "Config path as parameter is missing. Exiting." )
 
 CONFIG = loadConfig( str( sys.argv[1] ) )
@@ -42,8 +42,8 @@ def callWebhook( target, method, body ):
         print( "--> Response code: " + str( response.status_code ) )
     except Exception as e:
         print( "--> Error while calling webhook: " + str( e ) )
-        
 
+# Replace all placeholders (defined in PLACEHOLDERS) in the webhookBody with the actual values from requestInfo
 def complementWebhookBody( webhookBody, requestInfo ):
     requestInfo["timestamp"] = str( requestInfo["timestamp"] )
 

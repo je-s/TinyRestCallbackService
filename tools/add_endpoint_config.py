@@ -5,7 +5,7 @@ from utils import Database
 import sys
 import sqlite3
 
-if sys.argv.__len__() < 2:
+if len( sys.argv ) < 2:
     sys.exit( "Database-Name is missing. Exiting." )
 
 endpointConfig = \
@@ -32,7 +32,7 @@ endpointConfig["webhookUrl"] = str( input( "\tWebhook URL: " ) )
 endpointConfig["webhookMethod"] = str( input( "\tWebhook Method (GET, POST, PUT, DELETE, PATCH, CUSTOM, TEST): " ) )
 endpointConfig["webhookBody"] = str( input( "\tWebhook Body: " ) )
 
-if sys.argv.__len__() < 3:
+if len( sys.argv ) < 3:
     database = Database( sys.argv[1] )
 else:
     database = Database( sys.argv[1], sys.argv[2] )
