@@ -3,10 +3,9 @@ import sys
 import sqlite3
 
 class Database:
-    def __init__ ( self, database, schema ):
+    def __init__ ( self, database, schema = None ):
         self.database = database
-
-        self.schema = schema or './schema.sql'
+        self.schema = schema or "./schema.sql"
 
         databaseConnection = sqlite3.connect( self.database )
 
@@ -18,7 +17,7 @@ class Database:
             print( "Database with name \"" + self.database + "\" not initialised. Creating database." )
 
             try:
-                with open( schema, "r" ) as file:
+                with open( self.schema, "r" ) as file:
                     cursor.executescript( file.read() )
             except FileNotFoundError:
                 sys.exit( "Couldn't create Database, schema file \"" + schema + "\" not found. Exiting." )
