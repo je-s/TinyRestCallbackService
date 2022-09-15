@@ -1,0 +1,21 @@
+services:
+    service:
+        build: ./
+        image: tinyhttpcallbackservice:latest
+        ports:
+            - 5000:5000
+        volumes:
+            - ${TINYHTTPCALLBACKSERVICE_CONFIG}:/TinyHttpCallbackService/config.toml
+            - ${TINYHTTPCALLBACKSERVICE_DATABASE}:/TinyHttpCallbackService/tinyhttpcallbackservice.db
+        restart: unless-stopped
+        environment:
+            - PYTHONUNBUFFERED=1
+    webhook-testservice:
+        build: ./
+        image: tinyhttpcallbackservice:latest
+        ports:
+            - 5001:5001
+        restart: unless-stopped
+        environment:
+            - PYTHONUNBUFFERED=1
+        entrypoint: "/usr/bin/python3 -u ./tools/webhook_testservice.py"
