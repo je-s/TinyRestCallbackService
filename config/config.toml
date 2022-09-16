@@ -1,6 +1,6 @@
 HOST = "0.0.0.0"
-PORT = 6000
+PORT = 5080
 PATH_PREFIX = ""
-DATABASE = "./tinyhttpcallbackservice.db"
+DATABASE = "./databases/tinyhttpcallbackservice.db"
 SCHEMA = "./schema.sql"
 DEFAULT_MESSAGE = "Endpoint not found."

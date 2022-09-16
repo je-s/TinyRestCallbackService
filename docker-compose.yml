@@ -3,10 +3,10 @@ services:
         build: ./
         image: tinyhttpcallbackservice:latest
         ports:
-            - 6000
+            - 5080
         volumes:
-            - ${TINYHTTPCALLBACKSERVICE_CONFIG}:/TinyHttpCallbackService/config.toml
-            - ${TINYHTTPCALLBACKSERVICE_DATABASE}:/TinyHttpCallbackService/tinyhttpcallbackservice.db
+            - ${TINYHTTPCALLBACKSERVICE_CONFIG}:/TinyHttpCallbackService/config/config.toml
+            - ${TINYHTTPCALLBACKSERVICE_DATABASE}:/TinyHttpCallbackService/databases/tinyhttpcallbackservice.db
         restart: unless-stopped
         environment:
             - PYTHONUNBUFFERED=1
@@ -14,7 +14,7 @@ services:
         build: ./
         image: tinyhttpcallbackservice:latest
         ports:
-            - 6001
+            - 5081
         restart: unless-stopped
         environment:
             - PYTHONUNBUFFERED=1
