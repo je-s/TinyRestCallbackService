@@ -5,8 +5,7 @@ services:
         ports:
             - 5080
         volumes:
-            - ${TINYHTTPCALLBACKSERVICE_CONFIG}:/TinyHttpCallbackService/config/config.toml
-            - ${TINYHTTPCALLBACKSERVICE_DATABASE}:/TinyHttpCallbackService/databases/tinyhttpcallbackservice.db
+            - ${TINYHTTPCALLBACKSERVICE_DATA}:/TinyHttpCallbackService/data/
         restart: unless-stopped
         environment:
             - PYTHONUNBUFFERED=1

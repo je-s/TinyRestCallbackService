@@ -10,4 +10,4 @@ RUN     mkdir /TinyHttpCallbackService
 COPY    ./ /TinyHttpCallbackService/
 WORKDIR /TinyHttpCallbackService/
 RUN     pip3 install -r requirements.txt
-ENTRYPOINT [ "/usr/bin/python3", "-u", "tinyhttpcallbackservice.py", "config/config.toml" ]
+ENTRYPOINT [ "/usr/bin/python3", "-u", "tinyhttpcallbackservice.py", "data/config.toml" ]
