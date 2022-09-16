@@ -7,4 +7,4 @@ def endpoint():
     print( request.data )
     return request.data
 
-service.run( "0.0.0.0", 5001 )
+service.run( "0.0.0.0", 6001 )

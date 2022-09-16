@@ -1,5 +1,5 @@
 HOST = "0.0.0.0"
-PORT = 5000
+PORT = 6000
 PATH_PREFIX = ""
 DATABASE = "./tinyhttpcallbackservice.db"
 SCHEMA = "./schema.sql"

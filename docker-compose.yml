@@ -3,7 +3,7 @@ services:
         build: ./
         image: tinyhttpcallbackservice:latest
         ports:
-            - 5000:5000
+            - 6000:6000
         volumes:
             - ${TINYHTTPCALLBACKSERVICE_CONFIG}:/TinyHttpCallbackService/config.toml
             - ${TINYHTTPCALLBACKSERVICE_DATABASE}:/TinyHttpCallbackService/tinyhttpcallbackservice.db
