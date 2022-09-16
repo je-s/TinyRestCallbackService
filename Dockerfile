@@ -2,7 +2,6 @@ FROM    debian:11
 LABEL   maintainer="JES <je@aesyc.systems>" \
         version="1.0"
 ENV     DEBIAN_FRONTEND noninteractive
-EXPOSE  6000
 RUN     apt-get clean && apt-get update
 RUN     apt-get install -y \
         build-essential \
