@@ -14,7 +14,7 @@ services:
         build: ./
         image: tinyhttpcallbackservice:latest
         ports:
-            - 5001:5001
+            - 6001:6001
         restart: unless-stopped
         environment:
             - PYTHONUNBUFFERED=1
