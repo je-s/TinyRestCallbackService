@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 printUsage()
 {
     echo "Usage: "
     echo -e "\t- \"service <configPath>\" for starting the main service"
     echo -e "\t- \"add-endpoint <databasePath> [<schemaFile>]\" for adding an ednpoint config"
-    echo -e "\t- \"webhook-testservice\" for starting the webhook testservice"
+    echo -e "\t- \"webhook-testservice <port>\" for starting the webhook testservice"
 }
 
 if [ "$#" -lt 1 ]; then
@@ -19,7 +19,7 @@ if [ "$1" = "service" ]; then
 elif [ "$1" = "add-endpoint" ]; then
     python3 tools/add_endpoint_config.py $2 $3
 elif [ "$1" = "webhook-testservice" ]; then
-    python3 tools/webhook_testservice.py
+    python3 tools/webhook_testservice.py $2
 else
     printUsage
 fi

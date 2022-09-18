@@ -7,14 +7,10 @@ services:
         volumes:
             - ${TINYHTTPCALLBACKSERVICE_DATA}:/TinyHttpCallbackService/data/
         restart: unless-stopped
-        environment:
-            - PYTHONUNBUFFERED=1
     webhook-testservice:
         build: ./
         image: tinyhttpcallbackservice:latest
         ports:
             - 5081
         restart: unless-stopped
-        environment:
-            - PYTHONUNBUFFERED=1
-        entrypoint: "/usr/bin/python3 -u ./tools/webhook_testservice.py"
+        entrypoint: "/usr/bin/python3 -u ./tools/webhook_testservice.py 5081"

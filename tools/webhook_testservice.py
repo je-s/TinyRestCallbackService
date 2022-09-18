@@ -1,4 +1,8 @@
+import sys
 from flask import Flask, request
+
+if len( sys.argv ) < 2:
+    sys.exit( "Port number is missing. Exiting." )
 
 service = Flask( __name__ )
 
@@ -7,4 +11,4 @@ def endpoint():
     print( request.data )
     return request.data
 
-service.run( "0.0.0.0", 5081 )
+service.run( "0.0.0.0", sys.argv[1] )
