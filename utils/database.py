@@ -3,7 +3,7 @@ import sys
 import sqlite3
 
 class Database:
-    # Create and initialise the respecive database with schema in case it doesn't exist yet
+    # Create and initialise the respecive database in case it doesn't exist yet
     def __init__( self, database, schema = None ):
         self.database = database
         self.schema = schema or "./schema.sql"

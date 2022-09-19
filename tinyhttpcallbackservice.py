@@ -8,12 +8,14 @@ import time
 import json
 import requests
 import string
+from gevent.pywsgi import WSGIServer
 
 # Constants
 MAIN_HTML_FILE = "main.html"
 
 # Variables
 CONFIG = {}
+server = None
 service = Flask( __name__ )
 database = None
 
@@ -26,8 +28,7 @@ CONFIG = loadConfig( str( sys.argv[1] ) )
 # Define our signal handler for gracefully ending the script
 def signalHandler( signal, frame ):
     print( "Stopping all services..." )
-    #service.terminate()
-    #service.join()
+    server.stop()
 
 # Init SIGINT-Signal to gracefully quit the Script
 def initInterruptSignal():
@@ -53,6 +54,7 @@ def complementWebhookBody( webhookBody, requestInfo ):
 
     return webhookBody
 
+# Endpoint processor
 @service.route( CONFIG["PATH_PREFIX"] + "/<path:endpoint>", methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'CUSTOM', 'TEST'] )
 def endpoint( endpoint ):
     requestInfo = \
@@ -87,6 +89,7 @@ def endpoint( endpoint ):
     return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
 
 print( "Starting service." )
-#initInterruptSignal()
+initInterruptSignal()
 database = Database( CONFIG["DATABASE"], CONFIG["SCHEMA"] )
-service.run( CONFIG["HOST"], CONFIG["PORT"] )
+server = WSGIServer( ( CONFIG["HOST"], CONFIG["PORT"] ), service )
+server.serve_forever()
