@@ -6,7 +6,7 @@ if len( sys.argv ) < 2:
 
 service = Flask( __name__ )
 
-@service.route( "/", methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'CUSTOM', 'TEST'] )
+@service.route( "/", methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] )
 def endpoint():
     print( request.data )
     return request.data

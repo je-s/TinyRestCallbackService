@@ -6,8 +6,8 @@ RUN     apt-get clean && apt-get update
 RUN     apt-get install -y \
         build-essential \
         python3 python3-pip
-RUN     mkdir /TinyHttpCallbackService
-COPY    ./ /TinyHttpCallbackService/
-WORKDIR /TinyHttpCallbackService/
+RUN     mkdir /TinyRestCallbackService
+COPY    ./ /TinyRestCallbackService/
+WORKDIR /TinyRestCallbackService/
 RUN     pip3 install -r requirements.txt
-ENTRYPOINT [ "/usr/bin/python3", "-u", "tinyhttpcallbackservice.py", "data/config.toml" ]
+ENTRYPOINT [ "/usr/bin/python3", "-u", "tinyrestcallbackservice.py", "data/config.toml" ]

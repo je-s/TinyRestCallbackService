@@ -27,7 +27,7 @@ CONFIG = loadConfig( str( sys.argv[1] ) )
 
 # Define our signal handler for gracefully ending the script
 def signalHandler( signal, frame ):
-    print( "Stopping all services..." )
+    print( "\nStopping all services..." )
     server.stop()
 
 # Init SIGINT-Signal to gracefully quit the Script
@@ -55,7 +55,7 @@ def complementWebhookBody( webhookBody, requestInfo ):
     return webhookBody
 
 # Endpoint processor
-@service.route( CONFIG["PATH_PREFIX"] + "/<path:endpoint>", methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'CUSTOM', 'TEST'] )
+@service.route( CONFIG["PATH_PREFIX"] + "/<path:endpoint>", methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] )
 def endpoint( endpoint ):
     requestInfo = \
     {

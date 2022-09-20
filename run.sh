@@ -15,7 +15,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 if [ "$1" = "service" ]; then
-    python3 tinyhttpcallbackservice.py $2
+    python3 tinyrestcallbackservice.py $2
 elif [ "$1" = "add-endpoint" ]; then
     python3 tools/add_endpoint_config.py $2 $3
 elif [ "$1" = "webhook-testservice" ]; then

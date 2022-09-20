@@ -1,15 +1,16 @@
 services:
     service:
         build: ./
-        image: tinyhttpcallbackservice:latest
+        image: tinyrestcallbackservice:latest
         ports:
             - 5080
         volumes:
-            - ${TINYHTTPCALLBACKSERVICE_DATA}:/TinyHttpCallbackService/data/
+            - ${TINYRESTCALLBACKSERVICE_DATA}:/TinyRestCallbackService/data/
         restart: unless-stopped
+        #entrypoint: "/usr/bin/python3 -u tinyrestcallbackservice.py data/config.toml"
     webhook-testservice:
         build: ./
-        image: tinyhttpcallbackservice:latest
+        image: tinyrestcallbackservice:latest
         ports:
             - 5081
         restart: unless-stopped
