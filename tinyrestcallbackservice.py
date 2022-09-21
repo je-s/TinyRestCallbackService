@@ -45,7 +45,7 @@ def callWebhook( target, method, body ):
         print( "--> Error while calling webhook: " + str( e ) )
 
 # Replace all placeholders (defined in PLACEHOLDERS) in the webhookBody with the actual values from requestInfo
-def complementWebhookBody( webhookBody, requestInfo ):
+def complementData( webhookBody, requestInfo ):
     requestInfo["timestamp"] = str( requestInfo["timestamp"] )
 
     # Names of dict-entries in PLACEHOLDER and requestInfo must be in sync, or otherwise the items can not be matched.
@@ -78,15 +78,17 @@ def endpoint( endpoint ):
         database.logRequest( requestInfo )
 
     if endpointConfig["webhookUrl"]:
-        print( "--> Calling webhook URL \"" + endpointConfig["webhookUrl"] + "\"" )
+        webhookUrl = complementData( endpointConfig["webhookUrl"], requestInfo )
+        print( "--> Calling webhook URL \"" + webhookUrl + "\"" )
+
         webhookBody = ""
 
         if endpointConfig["webhookBody"]:
-            webhookBody = complementWebhookBody( endpointConfig["webhookBody"], requestInfo )
+            webhookBody = complementData( endpointConfig["webhookBody"], requestInfo )
 
-        callWebhook( endpointConfig["webhookUrl"], endpointConfig["webhookMethod"], webhookBody )
+        callWebhook( webhookUrl, endpointConfig["webhookMethod"], webhookBody )
 
-    return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
+    return render_template( MAIN_HTML_FILE, message = complementData( endpointConfig["message"], requestInfo ), redirectUrl = complementData( endpointConfig["redirectUrl"], requestInfo ), redirectWait = endpointConfig["redirectWait"] )
 
 print( "Starting service." )
 initInterruptSignal()

@@ -69,14 +69,27 @@ A brief description of the fields in `ENDPOINT_CONFIG`:
 | `ENDPOINT` | TEXT | y | Path to the endpoint. | Example: <br>test, test/2, t/e/s/t |
 | `METHOD` | TEXT | y | Method the endpoint is listening to. | Options: <br>GET, POST, PUT, PATCH, DELETE |
 | `LOG` | BOOLEAN | y | Whether to log the request attempt or not. | Options: <br>TRUE, FALSE |
-| `MESSAGE` | TEXT | n | HTML message to be returned to the sender. | Example: <br>\<h1>you dun goofed!\</h1> |
-| `REDIRECT_URL` | TEXT | n | URL to redirect to when calling the endpoint. | Example: <br>https://bitcoin.org/ |
+| `MESSAGE` | TEXT | n | HTML message to be returned to the sender.<br>Cane be supplied with placeholders. | Example: <br>\<h1>you dun goofed!\</h1> |
+| `REDIRECT_URL` | TEXT | n | URL to redirect to when calling the endpoint.<br>Can be supplied with placeholders. | Example: <br>https://bitcoin.org/ |
 | `REDIRECT_WAIT` | INTEGER | n | Wait (in ms) until redirecting. | Options: <br>Value >= 0 |
-| `WEBHOOK_URL` | TEXT | n | Webhook URL to call when the endpoint is getting called. | Example: <br>http://localhost:5081/ |
+| `WEBHOOK_URL` | TEXT | n | Webhook URL to call when the endpoint is getting called.<br>Can be supplied with placeholders. | Example: <br>http://localhost:5081/ |
 | `WEBHOOK_METHOD` | TEXT | n | Method to call the webhook with. | Options: <br>GET, POST, PUT, PATCH, DELETE |
-| `WEBHOOK_BODY` | TEXT | n | Body to deliver to the webhook. The body can be supplied with placehoders automatically filled out when the request is getting made. <br><br>Possible placeholders: <\<endpoint>>, <\<method>>, <\<host>>, <\<requestUrl>>, <\<remoteIp>>, <\<userAgent>>, <\<timestamp>> | Example: <br>`time = <<timestamp>>`, <br>results in: <br>`time = 133769420` |
+| `WEBHOOK_BODY` | TEXT | n | Body to deliver to the webhook.<br>Can be supplied with placehoders. | `time = <<timestamp>>`,<br>results in: `time = 133769420` |
 
 Each endpoint is distinguised by the endpoint and a method in conjunction - no combination can appear twice.
+
+### Placeholders
+As mentioned in the previous table, the fields `MESSAGE`, `REDIRECT_URL`, `WEBHOOK_URL` & `WEBHOOK_BODY` can be supplied with placeholders.
+<br>Possible placeholders:
+| Placeholder | Resulting data | Datatype | Example |
+| --- | --- | --- | --- |
+| `<<endpoint>>` | Endpoint name called | String | `<<endpoint>>` -> `test` |
+| `<<method>>` | Method used to call the endpoint | String | `<<method>>` -> `GET` |
+| `<<host>>` | Host(-Interface) and Port the method has been called on | String | `<<host>>` -> `172.27.0.3:5080` |
+| `<<requestUrl>>` | Complete request URL of the call. | String | `<<requestUrl>>` -> `http://172.27.0.3:5080/test` |
+| `<<remoteIp>>` | Remote IP of the caller. | String | `<<remoteIp>>` -> `172.27.0.1`|
+| `<<userAgent>>` | User Agent string of the caller. | String | `<<userAgent>>` -> `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.15.10 Chrome/87.0.4280.144 Safari/537.36 Konqueror (WebEnginePart)`|
+| `<<timestamp>>` | Timestamp | Integer | `<<timestamp>>` -> `133769420` |
 
 # Purpose
 This tiny service was originally intended to track whether specific QR-codes have been scanned. For instance: In case a link has been called, a series of actions, such as notifications, can be triggered in order to inform about such an event.
