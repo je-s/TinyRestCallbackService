@@ -91,6 +91,20 @@ As mentioned in the previous table, the fields `MESSAGE`, `REDIRECT_URL`, `WEBHO
 | `<<userAgent>>` | User Agent string of the caller. | String | `<<userAgent>>` -> `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.15.10 Chrome/87.0.4280.144 Safari/537.36 Konqueror (WebEnginePart)`|
 | `<<timestamp>>` | Timestamp | Integer | `<<timestamp>>` -> `133769420` |
 
+### Example Endpoint Configuration
+
+| Field Name | Content |
+| --- | --- |
+| `ENDPOINT` | `test` |
+| `METHOD` | `GET` |
+| `LOG` | `true` |
+| `MESSAGE` | `<h1>endpoint: <<endpoint>><br>time: <<timestamp>><br>host: <<host>><br>requestUrl: <<requestUrl>><br>remoteIp: <<remoteIp>><br>userAgent: <<userAgent>></h1>` |
+| `REDIRECT_URL` | `https://test.service/<<endpoint>>` |
+| `REDIRECT_WAIT` | `2000` |
+| `WEBHOOK_URL` | `http://localhost:5081/<<endpoint>>` |
+| `WEBHOOK_METHOD` | `POST` |
+| `WEBHOOK_BODY` | `time = <<timestamp>>, userAgent = <<userAgent>>` |
+
 # Purpose
 This tiny service was originally intended to track whether specific QR-codes have been scanned. For instance: In case a link has been called, a series of actions, such as notifications, can be triggered in order to inform about such an event.
 
