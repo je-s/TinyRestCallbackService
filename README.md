@@ -19,6 +19,8 @@ A tiny HTTP RESTful service for executing callbacks (webhooks) whenever a specif
 2. [Usage](#usage)
     1. [Config file](#config-file)
     2. [Database](#database)
+        1. [Placeholders](#placeholders)
+        2. [Example Endpoint Configuration](#example-endpoint-configuration)
 3. [Purpose ](#purpose)
 4. [License](#license)
 
@@ -45,15 +47,15 @@ The default config file lies in `data/config.toml`. If you use multiple config f
 
 | Field | Type | Purpose | Default value |
 | --- | --- | --- | --- |
-| `HOST` | String | Host / Interface to bind the service to | "0.0.0.0" |
-| `PORT` | Number | Port to bind the service to | 5080 |
-| `PATH_PREFIX` | String | Path prefix to prepend to all endpoints | "" |
-| `DATABASE` | String | Path to the database to be used. <br>In case the database doesn't exist yet, it's getting created on the fly. | "./data/tinyrestcallbackservice.db" |
-| `SCHEMA` | String | Schema to use. <br>The tables and fields defined in `schema.sql` have to be present for the service to work properly. | "./schema.sql" |
-| `DEFAULT_MESSAGE` | String | Default message getting returned to a requester, in case the endpoint called is not defined. | "Endpoint not found." |
+| `HOST` | String | Host / Interface to bind the service to | `"0.0.0.0"` |
+| `PORT` | Number | Port to bind the service to | `5080` |
+| `PATH_PREFIX` | String | Path prefix to prepend to all endpoints | `""` |
+| `DATABASE` | String | Path to the database to be used. <br>In case the database doesn't exist yet, it's getting created on the fly. | `"./data/tinyrestcallbackservice.db"` |
+| `SCHEMA` | String | Schema to use. <br>The tables and fields defined in `schema.sql` have to be present for the service to work properly. | `"./schema.sql"` |
+| `DEFAULT_MESSAGE` | String | Default message getting returned to a requester, in case the endpoint called is not defined. | `"Endpoint not found."` |
 
 ## Database
-The database follows the schema defined in `schema.sql`. The tables and fields defined in `schema.sql` have to be present for the service to work properly. Apart from that, you can enhance the schema according to your needs.
+The database follows the schema defined in `schema.sql`. The tables and fields defined in `schema.sql` have to be present for the service to work properly. Apart from that, you can enhance the (or an) schema according to your needs.
 
 The table `ENDPOINT_CONFIG` holds all endpoint configurations to which the service responds, and the table `LOG` holds all logged request activites from users.
 
@@ -66,30 +68,31 @@ A brief description of the fields in `ENDPOINT_CONFIG`:
 
 | Field | Datatype | Mandatory? | Purpose | Examples / Option(s) |
 | --- | --- | --- | --- | --- |
-| `ENDPOINT` | TEXT | y | Path to the endpoint. | Example: <br>test, test/2, t/e/s/t |
-| `METHOD` | TEXT | y | Method the endpoint is listening to. | Options: <br>GET, POST, PUT, PATCH, DELETE |
-| `LOG` | BOOLEAN | y | Whether to log the request attempt or not. | Options: <br>TRUE, FALSE |
-| `MESSAGE` | TEXT | n | HTML message to be returned to the sender.<br>Cane be supplied with placeholders. | Example: <br>\<h1>you dun goofed!\</h1> |
-| `REDIRECT_URL` | TEXT | n | URL to redirect to when calling the endpoint.<br>Can be supplied with placeholders. | Example: <br>https://bitcoin.org/ |
+| `ENDPOINT` | TEXT | y | Path to the endpoint. | Example: <br>`test`, `test/2`, `t/e/s/t` |
+| `METHOD` | TEXT | y | Method the endpoint is listening to. | Options: <br>`GET`, `POST`, `PUT`, `PATCH`, `DELETE` |
+| `LOG` | BOOLEAN | y | Whether to log the request attempt or not. | Options: <br>`TRUE`, `FALSE` |
+| `MESSAGE` | TEXT | n | HTML message to be returned to the sender.<br><br>Can be supplied with placeholders. | Example: <br>`<h1>you dun goofed!\</h1>` |
+| `REDIRECT_URL` | TEXT | n | URL to redirect to when calling the endpoint.<br><br>Can be supplied with placeholders. | Example: <br>`https://bitcoin.org/` |
 | `REDIRECT_WAIT` | INTEGER | n | Wait (in ms) until redirecting. | Options: <br>Value >= 0 |
-| `WEBHOOK_URL` | TEXT | n | Webhook URL to call when the endpoint is getting called.<br>Can be supplied with placeholders. | Example: <br>http://localhost:5081/ |
-| `WEBHOOK_METHOD` | TEXT | n | Method to call the webhook with. | Options: <br>GET, POST, PUT, PATCH, DELETE |
-| `WEBHOOK_BODY` | TEXT | n | Body to deliver to the webhook.<br>Can be supplied with placehoders. | `time = <<timestamp>>`,<br>results in: `time = 133769420` |
+| `WEBHOOK_URL` | TEXT | n | Webhook URL to call when the endpoint is getting called.<br><br>Can be supplied with placeholders. | Example: <br>`http://localhost:5081/` |
+| `WEBHOOK_METHOD` | TEXT | n | Method to call the webhook with. | Options: <br>`GET`, `POST`, `PUT`, `PATCH`, `DELETE` |
+| `WEBHOOK_BODY` | TEXT | n | Body to deliver to the webhook.<br><br>Can be supplied with placehoders. | `time = <<timestamp>>`,<br>results in: `time = 133769420` |
 
-Each endpoint is distinguised by the endpoint and a method in conjunction - no combination can appear twice.
+Each endpoint is distinguished by the endpoint and a method in conjunction - no combination can appear twice.
 
 ### Placeholders
 As mentioned in the previous table, the fields `MESSAGE`, `REDIRECT_URL`, `WEBHOOK_URL` & `WEBHOOK_BODY` can be supplied with placeholders.
-<br>Possible placeholders:
+
+Possible placeholders:
 | Placeholder | Resulting data | Datatype | Example |
 | --- | --- | --- | --- |
-| `<<endpoint>>` | Endpoint name called | String | `<<endpoint>>` -> `test` |
-| `<<method>>` | Method used to call the endpoint | String | `<<method>>` -> `GET` |
-| `<<host>>` | Host(-Interface) and Port the method has been called on | String | `<<host>>` -> `172.27.0.3:5080` |
-| `<<requestUrl>>` | Complete request URL of the call. | String | `<<requestUrl>>` -> `http://172.27.0.3:5080/test` |
-| `<<remoteIp>>` | Remote IP of the caller. | String | `<<remoteIp>>` -> `172.27.0.1`|
-| `<<userAgent>>` | User Agent string of the caller. | String | `<<userAgent>>` -> `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.15.10 Chrome/87.0.4280.144 Safari/537.36 Konqueror (WebEnginePart)`|
-| `<<timestamp>>` | Timestamp | Integer | `<<timestamp>>` -> `133769420` |
+| `<<endpoint>>` | Endpoint name called. | String | `<<endpoint>>` 🠞 `test` |
+| `<<method>>` | Method used to call the endpoint. | String | `<<method>>` 🠞 `GET` |
+| `<<host>>` | Host(-Interface) and Port the method has been called on. | String | `<<host>>` 🠞 `172.27.0.3:5080` |
+| `<<requestUrl>>` | Complete request URL of the call. | String | `<<requestUrl>>` 🠞 `http://172.27.0.3:5080/test` |
+| `<<remoteIp>>` | Remote IP of the caller. | String | `<<remoteIp>>` 🠞 `172.27.0.1`|
+| `<<userAgent>>` | User Agent string of the caller. | String | `<<userAgent>>` 🠞 `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.15.10 Chrome/87.0.4280.144 Safari/537.36 Konqueror (WebEnginePart)`|
+| `<<timestamp>>` | Timestamp | Integer | `<<timestamp>>` 🠞 `133769420` |
 
 ### Example Endpoint Configuration
 
@@ -106,7 +109,7 @@ As mentioned in the previous table, the fields `MESSAGE`, `REDIRECT_URL`, `WEBHO
 | `WEBHOOK_BODY` | `time = <<timestamp>>, userAgent = <<userAgent>>` |
 
 # Purpose
-This tiny service was originally intended to track whether specific QR-codes have been scanned. For instance: In case a link has been called, a series of actions, such as notifications, can be triggered in order to inform about such an event.
+This tiny service was originally intended to track whether specific QR-codes have been scanned (e.g. QR-codes printed on lost goods). For instance: In case a link has been called, a series of actions, such as notifications, can be triggered in order to inform about such an event.
 
 Feel free to abuse for any other purposes that come to your mind. I bet there are some more specific than what I've just described. ;)
 
