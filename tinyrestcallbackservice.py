@@ -15,9 +15,9 @@ MAIN_HTML_FILE = "main.html"
 
 # Variables
 CONFIG = {}
-server = None
 service = Flask( __name__ )
 database = None
+server = None
 
 # Load config
 if len( sys.argv ) < 2:
