@@ -37,6 +37,7 @@ def initInterruptSignal():
 
     print( "Press Ctrl+C to exit." )
 
+# Calls the webhook after complementing the target URL & the body
 def callWebhook( target, method, body, requestInfo ):
     try:
         target = complementString( target, requestInfo )
@@ -55,7 +56,7 @@ def callWebhook( target, method, body, requestInfo ):
 def complementString( string, requestInfo ):
     requestInfo["timestamp"] = str( requestInfo["timestamp"] )
 
-    # Names of dict-entries in PLACEHOLDER and requestInfo must be in sync, or otherwise the items can not be matched.
+    # Names of dict-entries in PLACEHOLDER and requestInfo must be in sync, or otherwise the items can not be matched
     for entry in PLACEHOLDER:
         string = string.replace( PLACEHOLDER[entry], requestInfo[entry] )
 
@@ -76,22 +77,27 @@ def endpoint( endpoint ):
     }
 
     print( "-> Endpoint \"" + requestInfo["endpoint"] + "\" called with method \"" + requestInfo["method"] + "\" from " + requestInfo["remoteIp"] )
+
     endpointConfig = database.getEndpointConfig( requestInfo["endpoint"], requestInfo["method"] )
 
+    # In case no matching endpoint config is found, just return our default message
     if endpointConfig is None:
         return CONFIG["DEFAULT_MESSAGE"]
-
-    endpointConfig["message"] = complementString( endpointConfig["message"], requestInfo )
-    endpointConfig["redirectUrl"] = complementString( endpointConfig["redirectUrl"], requestInfo )
 
     if endpointConfig["log"]:
         database.logRequest( requestInfo )
 
     if endpointConfig["webhookUrl"]:
-        webhookThread = threading.Thread(target = callWebhook, args = ( endpointConfig["webhookUrl"], endpointConfig["webhookMethod"], endpointConfig["webhookBody"], requestInfo ) )
+        # Calls the webhook asynchronous, so long answer times or failures don't block/interrupt the service request too long
+        webhookThread = threading.Thread( target = callWebhook, args = ( endpointConfig["webhookUrl"], endpointConfig["webhookMethod"], endpointConfig["webhookBody"], requestInfo ) )
         webhookThread.start()
 
-    return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
+    # Inject the HTML message, the redirect URL and the redirect waiting time into our template and return it
+    endpointConfig["message"] = complementString( endpointConfig["message"], requestInfo )
+    endpointConfig["redirectUrl"] = complementString( endpointConfig["redirectUrl"], requestInfo )
+    template = render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
+
+    return template
 
 print( "Starting service." )
 initInterruptSignal()
