@@ -8,6 +8,7 @@ import time
 import json
 import requests
 import string
+import threading
 from gevent.pywsgi import WSGIServer
 
 # Constants
@@ -36,23 +37,29 @@ def initInterruptSignal():
 
     print( "Press Ctrl+C to exit." )
 
-def callWebhook( target, method, body ):
+def callWebhook( target, method, body, requestInfo ):
     try:
+        target = complementString( target, requestInfo )
+        print( "--> Calling webhook URL \"" + target + "\"" )
+
+        if body:
+            body = complementString( body, requestInfo )
+
         response = requests.request( method, target, data = body )
 
         print( "--> Response code: " + str( response.status_code ) )
     except Exception as e:
-        print( "--> Error while calling webhook: " + str( e ) )
+        print( "--> Error while calling webhook URL \"" + target + "\": " + str( e ) )
 
-# Replace all placeholders (defined in PLACEHOLDERS) in the webhookBody with the actual values from requestInfo
-def complementData( webhookBody, requestInfo ):
+# Replace all placeholders (defined in PLACEHOLDERS) in the string with the actual values from requestInfo
+def complementString( string, requestInfo ):
     requestInfo["timestamp"] = str( requestInfo["timestamp"] )
 
     # Names of dict-entries in PLACEHOLDER and requestInfo must be in sync, or otherwise the items can not be matched.
     for entry in PLACEHOLDER:
-        webhookBody = webhookBody.replace( PLACEHOLDER[entry], requestInfo[entry] )
+        string = string.replace( PLACEHOLDER[entry], requestInfo[entry] )
 
-    return webhookBody
+    return string
 
 # Endpoint processor
 @service.route( CONFIG["PATH_PREFIX"] + "/<path:endpoint>", methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] )
@@ -74,21 +81,17 @@ def endpoint( endpoint ):
     if endpointConfig is None:
         return CONFIG["DEFAULT_MESSAGE"]
 
+    endpointConfig["message"] = complementString( endpointConfig["message"], requestInfo )
+    endpointConfig["redirectUrl"] = complementString( endpointConfig["redirectUrl"], requestInfo )
+
     if endpointConfig["log"]:
         database.logRequest( requestInfo )
 
     if endpointConfig["webhookUrl"]:
-        webhookUrl = complementData( endpointConfig["webhookUrl"], requestInfo )
-        print( "--> Calling webhook URL \"" + webhookUrl + "\"" )
+        webhookThread = threading.Thread(target = callWebhook, args = ( endpointConfig["webhookUrl"], endpointConfig["webhookMethod"], endpointConfig["webhookBody"], requestInfo ) )
+        webhookThread.start()
 
-        webhookBody = ""
-
-        if endpointConfig["webhookBody"]:
-            webhookBody = complementData( endpointConfig["webhookBody"], requestInfo )
-
-        callWebhook( webhookUrl, endpointConfig["webhookMethod"], webhookBody )
-
-    return render_template( MAIN_HTML_FILE, message = complementData( endpointConfig["message"], requestInfo ), redirectUrl = complementData( endpointConfig["redirectUrl"], requestInfo ), redirectWait = endpointConfig["redirectWait"] )
+    return render_template( MAIN_HTML_FILE, message = endpointConfig["message"], redirectUrl = endpointConfig["redirectUrl"], redirectWait = endpointConfig["redirectWait"] )
 
 print( "Starting service." )
 initInterruptSignal()
